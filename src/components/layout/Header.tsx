@@ -1,0 +1,107 @@
+"use client";
+
+import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import Brand from "./Brand";
+
+const links = [
+  { href: "/", key: "home" },
+  { href: "/sobre", key: "about" },
+  { href: "/configurador", key: "configurator" },
+  { href: "/contato", key: "contact" },
+] as const;
+
+function LocaleSwitcher() {
+  const locale = useLocale();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  return (
+    <div className="flex items-center gap-1 text-xs tracking-widest">
+      {(["pt", "en"] as const).map((l, i) => (
+        <span key={l} className="flex items-center gap-1">
+          {i > 0 && <span className="text-line">·</span>}
+          <button
+            onClick={() => router.replace(pathname, { locale: l })}
+            className={`uppercase px-1 py-1 transition-colors cursor-pointer ${
+              locale === l
+                ? "text-gold"
+                : "text-muted hover:text-cream"
+            }`}
+            aria-current={locale === l ? "true" : undefined}
+          >
+            {l}
+          </button>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+export default function Header() {
+  const t = useTranslations("nav");
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <header className="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-ink/80 border-b border-line/60">
+      <div className="mx-auto max-w-6xl px-5 h-16 flex items-center justify-between">
+        <Brand compact />
+
+        {/* Desktop nav */}
+        <nav className="hidden md:flex items-center gap-8">
+          {links.map(({ href, key }) => (
+            <Link
+              key={key}
+              href={href}
+              className={`text-sm tracking-wide transition-colors ${
+                pathname === href
+                  ? "text-gold"
+                  : "text-cream/80 hover:text-gold-light"
+              }`}
+            >
+              {t(key)}
+            </Link>
+          ))}
+          <LocaleSwitcher />
+        </nav>
+
+        {/* Mobile toggle */}
+        <div className="md:hidden flex items-center gap-3">
+          <LocaleSwitcher />
+          <button
+            aria-label="Menu"
+            onClick={() => setOpen((v) => !v)}
+            className="flex flex-col gap-1.5 p-2 cursor-pointer"
+          >
+            <span
+              className={`block w-5 h-px bg-cream transition-transform ${open ? "translate-y-[3.5px] rotate-45" : ""}`}
+            />
+            <span
+              className={`block w-5 h-px bg-cream transition-transform ${open ? "-translate-y-[3.5px] -rotate-45" : ""}`}
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      {open && (
+        <nav className="md:hidden border-t border-line/60 bg-ink/95 backdrop-blur-md">
+          {links.map(({ href, key }) => (
+            <Link
+              key={key}
+              href={href}
+              onClick={() => setOpen(false)}
+              className={`block px-6 py-4 text-sm tracking-wide border-b border-line/40 ${
+                pathname === href ? "text-gold" : "text-cream/85"
+              }`}
+            >
+              {t(key)}
+            </Link>
+          ))}
+        </nav>
+      )}
+    </header>
+  );
+}

@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+@theme {
+  /* Bocatto palette — warm near-black + gold */
+  --color-ink: #0c0a07;
+  --color-surface: #14110c;
+  --color-surface-2: #1c1812;
+  --color-surface-3: #262017;
+  --color-line: #2e271c;
+  --color-gold: #c9a227;
+  --color-gold-light: #e8cd6f;
+  --color-gold-deep: #8c6d1f;
+  --color-cream: #f2ead9;
+  --color-muted: #a89d8a;
+
+  --font-display: var(--font-cormorant), "Georgia", serif;
+  --font-body: var(--font-jost), "Segoe UI", sans-serif;
+  --font-script: var(--font-script), cursive;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-ink);
+  color: var(--color-cream);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-ink);
+}
+
+/* Subtle vignette for the dark stage */
+.bg-stage {
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(201, 162, 39, 0.07), transparent 60%),
+    radial-gradient(900px 500px at 85% 110%, rgba(201, 162, 39, 0.05), transparent 60%),
+    var(--color-ink);
+}
+
+.gold-text {
+  background: linear-gradient(135deg, #e8cd6f 0%, #c9a227 45%, #9a7b1e 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gold-line {
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+  height: 1px;
+}
+
+.card-premium {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0)),
+    var(--color-surface);
+  border: 1px solid var(--color-line);
+}
+
+.card-premium:hover {
+  border-color: rgba(201, 162, 39, 0.45);
+}
+
+input,
+textarea,
+select {
+  color-scheme: dark;
+}
+
+/* Thin elegant scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-3) transparent;
+}
