@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { z } from "zod";
-import { violao, instruments } from "@/data/instruments/violao";
+import { instruments } from "@/data/instruments/violao";
+import type { InstrumentDefinition } from "@/data/instruments/types";
 import { OTHER_OPTION_ID } from "@/data/instruments/values";
-import type { FieldValue } from "@/data/instruments/values";
-import { isFieldVisible, shortSummary, validateStep } from "@/lib/summary";
+import type { FieldValue, UploadedImage } from "@/data/instruments/values";
+import { getModel, isFieldVisible, shortSummary, validateStep } from "@/lib/summary";
 import {
   clientIp,
   isHoneypotTripped,
@@ -34,13 +35,20 @@ const fieldValueSchema = z.object({
 
 const orderSchema = z.object({
   locale: z.enum(["pt", "en"]),
-  instrumentId: z.literal("violao"),
+  instrumentId: z.literal("violao-aco"),
+  modelId: z.string().max(40),
   values: z.record(z.string().max(60), fieldValueSchema),
+  extra: z
+    .object({
+      observations: z.string().max(2000).optional().default(""),
+      references: z.array(imageSchema).max(4).optional().default([]),
+    })
+    .optional()
+    .default({ observations: "", references: [] }),
   customer: z.object({
     name: z.string().min(2).max(120),
     email: z.string().email().max(200),
     whatsapp: z.string().min(10).max(30),
-    notes: z.string().max(2000).optional().default(""),
     source: z.string().max(30).optional().default(""),
   }),
   website: z.string().optional(), // honeypot
@@ -63,11 +71,16 @@ function isTrustedImageUrl(url: string): boolean {
  * answered, option ids real, "Other" descriptions present, images trusted.
  */
 function validateValues(
+  definition: InstrumentDefinition,
   values: Record<string, FieldValue>,
+  references: UploadedImage[],
 ): { ok: true } | { ok: false; reason: string } {
-  let totalImages = 0;
+  let totalImages = references.length;
+  for (const img of references) {
+    if (!isTrustedImageUrl(img.url)) return { ok: false, reason: "image:general" };
+  }
 
-  for (const step of violao.steps) {
+  for (const step of definition.steps) {
     const errors = validateStep(step, values);
     if (Object.keys(errors).length > 0) {
       return { ok: false, reason: `step:${step.id}` };
@@ -92,7 +105,7 @@ function validateValues(
     }
   }
 
-  if (totalImages > 12) return { ok: false, reason: "images:count" };
+  if (totalImages > 16) return { ok: false, reason: "images:count" };
   return { ok: true };
 }
 
@@ -128,13 +141,19 @@ export async function POST(request: Request) {
     // Bots get a fake success and nothing happens.
     return NextResponse.json({
       order: makeOrderId(),
-      pdfUrl: "/",
+      pdfUrl: null,
       whatsappUrl: "https://wa.me/",
     });
   }
 
   if (!(await verifyTurnstile(data.turnstileToken, ip))) {
     return NextResponse.json({ error: "turnstile" }, { status: 403 });
+  }
+
+  const definition = instruments[data.instrumentId];
+  const model = getModel(definition, data.modelId);
+  if (!model) {
+    return NextResponse.json({ error: "invalid_model" }, { status: 400 });
   }
 
   // Sanitize all free text before it reaches the PDF/e-mails.
@@ -148,7 +167,14 @@ export async function POST(request: Request) {
     };
   }
 
-  const semantic = validateValues(values);
+  const extra = {
+    observations: data.extra.observations
+      ? sanitizeText(data.extra.observations, 2000)
+      : "",
+    references: data.extra.references ?? [],
+  };
+
+  const semantic = validateValues(definition, values, extra.references);
   if (!semantic.ok) {
     return NextResponse.json(
       { error: "invalid_values", detail: semantic.reason },
@@ -160,23 +186,24 @@ export async function POST(request: Request) {
     name: sanitizeText(data.customer.name, 120),
     email: data.customer.email.trim(),
     whatsapp: sanitizeText(data.customer.whatsapp, 30),
-    notes: data.customer.notes ? sanitizeText(data.customer.notes, 2000) : "",
     source: data.customer.source,
   };
 
-  const definition = instruments[data.instrumentId];
   const order = makeOrderId();
   const origin = new URL(request.url).origin;
   const lang = data.locale;
+  const instrumentLabel = `${definition.name[lang]} — ${model.name}`;
 
-  // 1. Generate the PDF (reference images embedded).
+  // 1. Generate the PDF (model + reference images embedded).
   let pdfBuffer: Buffer;
   try {
     pdfBuffer = await generateOrderPdf({
       lang,
       order,
       definition,
+      model,
       values,
+      extra,
       customer,
       origin,
     });
@@ -196,7 +223,7 @@ export async function POST(request: Request) {
     console.error("[pedido] PDF storage failed (continuing without link):", err);
   }
 
-  const summary = shortSummary(definition, values, lang);
+  const summary = shortSummary(definition, data.modelId, values, lang);
   const filename = `${order}.pdf`;
   const attachments = [{ filename, content: pdfBuffer }];
 
@@ -206,8 +233,9 @@ export async function POST(request: Request) {
     `<p><strong>Cliente:</strong> ${customer.name}</p>
      <p><strong>E-mail:</strong> ${customer.email}<br/>
         <strong>WhatsApp:</strong> <a href="https://wa.me/${customer.whatsapp.replace(/\D/g, "")}" style="color:#c9a227;">${customer.whatsapp}</a></p>
+     <p><strong>Instrumento:</strong> ${instrumentLabel} (${model.scale})</p>
      <p><strong>Resumo:</strong> ${summary || "—"}</p>
-     ${customer.notes ? `<p><strong>Observações:</strong> ${customer.notes}</p>` : ""}
+     ${extra.observations ? `<p><strong>Observações:</strong> ${extra.observations}</p>` : ""}
      <p>PDF completo em anexo${pdfUrl ? ` e em <a href="${pdfUrl}" style="color:#c9a227;">${pdfUrl}</a>` : ""}.</p>`,
   );
 
@@ -218,11 +246,11 @@ export async function POST(request: Request) {
   const clientHtml = emailShell(
     lang === "pt" ? `Obrigado, ${customer.name}!` : `Thank you, ${customer.name}!`,
     lang === "pt"
-      ? `<p>Recebemos o seu pedido <strong>${order}</strong> com todas as especificações do seu violão.</p>
-         <p>O luthier vai analisar o projeto e retornar pessoalmente com o orçamento. O documento completo está em anexo.</p>
+      ? `<p>Recebemos o seu pedido <strong>${order}</strong> (${instrumentLabel}) com todas as especificações.</p>
+         <p>A oficina vai analisar o projeto e retornar pessoalmente com o orçamento. O documento completo está em anexo.</p>
          <p>Até breve,<br/>Bocatto Luthieria</p>`
-      : `<p>We received your order <strong>${order}</strong> with all the specifications of your guitar.</p>
-         <p>The luthier will review the project and reply personally with a quote. The full document is attached.</p>
+      : `<p>We received your order <strong>${order}</strong> (${instrumentLabel}) with all the specifications.</p>
+         <p>The workshop will review the project and reply personally with a quote. The full document is attached.</p>
          <p>See you soon,<br/>Bocatto Luthieria</p>`,
   );
 
@@ -252,7 +280,7 @@ export async function POST(request: Request) {
     lang,
     order,
     name: customer.name,
-    instrument: definition.name[lang],
+    instrument: instrumentLabel,
     summary,
     pdfUrl,
   });

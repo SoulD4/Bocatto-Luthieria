@@ -50,7 +50,7 @@ export default function HomePage({
               {t("heroSubtitle")}
             </p>
             <div className="flex flex-wrap gap-4">
-              <ButtonLink href="/configurador">{t("heroCta")}</ButtonLink>
+              <ButtonLink href="/criacao">{t("heroCta")}</ButtonLink>
               <ButtonLink href="/sobre" variant="outline">
                 {t("heroSecondary")}
               </ButtonLink>
@@ -114,7 +114,7 @@ export default function HomePage({
             {t("ctaTitle")}
           </h2>
           <p className="text-muted mb-10">{t("ctaBody")}</p>
-          <ButtonLink href="/configurador">{t("ctaButton")}</ButtonLink>
+          <ButtonLink href="/criacao">{t("ctaButton")}</ButtonLink>
         </Reveal>
       </section>
     </div>

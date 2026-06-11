@@ -6,7 +6,7 @@ import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { useTranslations } from "next-intl";
 import type { FieldValue } from "@/store/configurator";
-import { violao } from "@/data/instruments/violao";
+import { violaoAco } from "@/data/instruments/violao";
 
 /* ────────────────────────────────────────────────────────────────────────────
  * Conceptual 3D guitar built procedurally from the user's selections.
@@ -18,7 +18,7 @@ type Values = Record<string, FieldValue>;
 
 function swatchOf(fieldId: string, values: Values, fallback: string): string {
   const optionId = values[fieldId]?.optionId;
-  for (const step of violao.steps) {
+  for (const step of violaoAco.steps) {
     for (const field of step.fields) {
       if (field.id === fieldId && field.kind === "choice") {
         const opt = field.options.find((o) => o.id === optionId);
@@ -92,38 +92,48 @@ function buildBodyShape(
   return shape;
 }
 
-function GuitarModel({ values }: { values: Values }) {
-  const shapeId = optionId("formato", values) ?? "classico";
-  const params = SHAPES[shapeId] ?? SHAPES.classico;
-  const cutawayId = (optionId("cutaway", values) ?? "sem") as
-    | "sem"
-    | "venetian"
-    | "florentine";
+function GuitarModel({
+  modelId,
+  values,
+}: {
+  modelId: string | null;
+  values: Values;
+}) {
+  // Body shape comes from the chosen model (replaces the old "formato" field).
+  const model = violaoAco.models.find((m) => m.id === modelId);
+  const shapeId = model?.shape ?? "om";
+  const params = SHAPES[shapeId] ?? SHAPES.om;
 
-  const topWood = swatchOf("tampo", values, "#d9b98a");
-  const sidesWood = swatchOf("lateraisFundo", values, "#7c4a26");
-  const neckWood = swatchOf("bracoMadeira", values, "#7c4a26");
-  const boardWood = swatchOf("escalaMadeira", values, "#1d160f");
-  const tunerColor = swatchOf("tarraxas", values, "#c9a227");
+  const cutawayRaw = optionId("cutaway", values);
+  const cutawayId: "sem" | "venetian" | "florentine" =
+    cutawayRaw === "veneziano"
+      ? "venetian"
+      : cutawayRaw === "florentino"
+        ? "florentine"
+        : "sem";
 
-  const tone = optionId("tonalidade", values) ?? "natural";
-  const toneMap: Record<string, [string, number]> = {
-    natural: ["#000000", 0],
-    sunburst: ["#6e3413", 0.4],
-    tabaco: ["#3a2412", 0.55],
-    preto: ["#15110c", 0.92],
-  };
-  const [toneColor, toneT] = toneMap[tone] ?? toneMap.natural;
-  const finishedTop = blend(topWood, toneColor, toneT);
-  const finishedSides = blend(sidesWood, toneColor, toneT * 0.8);
+  const finishedTop = swatchOf("tampo", values, "#d9b98a");
+  const finishedSides = swatchOf("fundoLateral", values, "#7c4a26");
+  const neckWood = swatchOf("braco", values, "#7c4a26");
+  const boardWood = swatchOf("escala", values, "#1d160f");
+  const tunerColor = swatchOf("tarraxasAcabamento", values, "#c9a227");
+  const roughness = 0.2;
 
-  const gloss = optionId("verniz", values) ?? "brilhante";
-  const roughness = gloss === "fosco" ? 0.55 : gloss === "goma-laca" ? 0.3 : 0.18;
+  // Map the spreadsheet's marker styles to viewer primitives.
+  const marcacao = optionId("marcacao", values);
+  const markers =
+    marcacao === "dots-6mm"
+      ? "pontos"
+      : marcacao === "cruz-losango"
+        ? "diamantes"
+        : marcacao === "floral"
+          ? "madreperola"
+          : "sem";
 
-  const markers = optionId("marcadores", values) ?? "pontos";
-  const strings = optionId("tipoCordas", values) ?? "nylon";
-  const headstockId = optionId("headstockFormato", values) ?? "slotted";
-  const pickguardId = optionId("pickguard", values);
+  const headstockId = optionId("headstock", values) ?? "modelo-1";
+  const pickguardId = optionId("escudo", values);
+  const showPickguard = Boolean(pickguardId) && pickguardId !== "sem-escudo";
+  const pickguardColor = swatchOf("escudo", values, "#5c3018");
 
   const { bodyGeom, topGeom } = useMemo(() => {
     const shape = buildBodyShape(params, cutawayId);
@@ -184,16 +194,11 @@ function GuitarModel({ values }: { values: Values }) {
         <meshStandardMaterial color="#16100a" roughness={0.6} />
       </mesh>
 
-      {/* Pickguard (steel-string only) */}
-      {strings === "aco" && pickguardId && pickguardId !== "sem" && (
+      {/* Pickguard */}
+      {showPickguard && (
         <mesh position={[0.85, yHole - 0.35, zTop + 0.004]} rotation={[0, 0, -0.5]}>
           <circleGeometry args={[0.55, 32]} />
-          <meshStandardMaterial
-            color={pickguardId === "tortoise" ? "#5c3018" : pickguardId === "preto" ? "#15110c" : "#3a3a3a"}
-            transparent={pickguardId === "transparente"}
-            opacity={pickguardId === "transparente" ? 0.25 : 1}
-            roughness={0.3}
-          />
+          <meshStandardMaterial color={pickguardColor} roughness={0.3} />
         </mesh>
       )}
 
@@ -226,7 +231,7 @@ function GuitarModel({ values }: { values: Values }) {
               {markers === "pontos" || markers === "madreperola" ? (
                 <circleGeometry args={[0.05, 24]} />
               ) : (
-                <planeGeometry args={markers === "blocos" ? [0.34, 0.16] : [0.11, 0.11]} />
+                <planeGeometry args={[0.12, 0.12]} />
               )}
               <meshStandardMaterial
                 color={markers === "madreperola" ? "#e8e3da" : "#ddd6c8"}
@@ -271,25 +276,15 @@ function GuitarModel({ values }: { values: Values }) {
         )}
       </group>
 
-      {/* Strings */}
+      {/* Strings (steel) */}
       {[-0.2, -0.12, -0.04, 0.04, 0.12, 0.2].map((x, i) => {
         const yTop = yNeckJoint + neckLen + 0.1;
         const len = yTop - yBridge;
+        const r = 0.008 - i * 0.0005;
         return (
           <mesh key={x} position={[x, yBridge + len / 2, zTop + 0.05]}>
-            <cylinderGeometry
-              args={[
-                strings === "nylon" ? 0.011 - i * 0.0006 : 0.008 - i * 0.0005,
-                strings === "nylon" ? 0.011 - i * 0.0006 : 0.008 - i * 0.0005,
-                len,
-                8,
-              ]}
-            />
-            <meshStandardMaterial
-              color={strings === "nylon" && i > 2 ? "#ded6c4" : "#cfc8b8"}
-              metalness={strings === "aco" ? 0.85 : 0.2}
-              roughness={0.3}
-            />
+            <cylinderGeometry args={[r, r, len, 8]} />
+            <meshStandardMaterial color="#cfc8b8" metalness={0.85} roughness={0.3} />
           </mesh>
         );
       })}
@@ -297,7 +292,13 @@ function GuitarModel({ values }: { values: Values }) {
   );
 }
 
-export default function GuitarViewer({ values }: { values: Values }) {
+export default function GuitarViewer({
+  modelId,
+  values,
+}: {
+  modelId: string | null;
+  values: Values;
+}) {
   const t = useTranslations("config");
   // Lazy init: this component only renders client-side (next/dynamic ssr:false).
   const [webgl] = useState(() => {
@@ -327,7 +328,7 @@ export default function GuitarViewer({ values }: { values: Values }) {
         <directionalLight position={[4, 6, 6]} intensity={1.4} color="#fff4dd" />
         <directionalLight position={[-6, 2, -4]} intensity={0.5} color="#c9a227" />
         <directionalLight position={[0, -4, 5]} intensity={0.25} color="#ffffff" />
-        <GuitarModel values={values} />
+        <GuitarModel modelId={modelId} values={values} />
         <OrbitControls
           enablePan={false}
           minDistance={5}

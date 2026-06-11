@@ -1,40 +1,38 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
-import type { Step } from "@/data/instruments/types";
-import type { Locale } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 
+/** Linear progress for the 7-stage creation. Visited stages are clickable. */
 export default function ProgressBar({
-  steps,
+  labels,
   current,
   maxVisited,
   onJump,
 }: {
-  steps: Step[];
+  labels: string[];
   current: number;
   maxVisited: number;
   onJump: (index: number) => void;
 }) {
   const t = useTranslations("config");
-  const lang = useLocale() as Locale;
 
   return (
     <div className="mb-10">
       <p className="text-xs uppercase tracking-[0.25em] text-muted mb-3">
-        {t("stepLabel", { current: current + 1, total: steps.length })}
-        <span className="text-gold ml-3">{steps[current].title[lang]}</span>
+        {t("stepLabel", { current: current + 1, total: labels.length })}
+        <span className="text-gold ml-3">{labels[current]}</span>
       </p>
       <div className="flex gap-1.5">
-        {steps.map((step, i) => {
+        {labels.map((label, i) => {
           const reachable = i <= maxVisited;
           return (
             <button
-              key={step.id}
+              key={label + i}
               type="button"
               disabled={!reachable}
               onClick={() => onJump(i)}
-              aria-label={step.title[lang]}
-              title={step.title[lang]}
+              aria-label={label}
+              title={label}
               className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
                 i === current
                   ? "bg-gold"

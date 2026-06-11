@@ -2,6 +2,7 @@ import type {
   Field,
   InstrumentDefinition,
   Localized,
+  Model,
   Step,
 } from "@/data/instruments/types";
 import {
@@ -9,6 +10,14 @@ import {
   type FieldValue,
   type UploadedImage,
 } from "@/data/instruments/values";
+
+/** Resolve the selected model (first creation step). */
+export function getModel(
+  def: InstrumentDefinition,
+  modelId: string | null | undefined,
+): Model | undefined {
+  return def.models.find((m) => m.id === modelId);
+}
 
 export type SummaryEntry = {
   stepId: string;
@@ -114,14 +123,17 @@ export function validateStep(
   return errors;
 }
 
-/** Short plain-text summary (top choices) for the WhatsApp message. */
+/** Short plain-text summary (model + top choices) for the WhatsApp message. */
 export function shortSummary(
   def: InstrumentDefinition,
+  modelId: string | null | undefined,
   values: Record<string, FieldValue>,
   lang: "pt" | "en",
   max = 5,
 ): string {
   const parts: string[] = [];
+  const model = getModel(def, modelId);
+  if (model) parts.push(`${lang === "pt" ? "Modelo" : "Model"}: ${model.name}`);
   for (const entry of buildSummary(def, values)) {
     if (parts.length >= max) break;
     if (!entry.answered || entry.kind !== "choice") continue;

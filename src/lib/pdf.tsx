@@ -9,8 +9,8 @@ import {
 } from "@react-pdf/renderer";
 import { readFile } from "fs/promises";
 import path from "path";
-import type { InstrumentDefinition } from "@/data/instruments/types";
-import type { FieldValue } from "@/data/instruments/values";
+import type { InstrumentDefinition, Model } from "@/data/instruments/types";
+import type { FieldValue, UploadedImage } from "@/data/instruments/values";
 import { buildSummary, type SummaryEntry } from "@/lib/summary";
 import pt from "@/messages/pt.json";
 import en from "@/messages/en.json";
@@ -21,8 +21,12 @@ export type CustomerInfo = {
   name: string;
   email: string;
   whatsapp: string;
-  notes?: string;
   source?: string;
+};
+
+export type OrderExtra = {
+  observations: string;
+  references: UploadedImage[];
 };
 
 const GOLD = "#c9a227";
@@ -109,7 +113,9 @@ function OrderPdf({
   order,
   date,
   definition,
+  model,
   values,
+  extra,
   customer,
   imageData,
   logoSrc,
@@ -118,9 +124,11 @@ function OrderPdf({
   order: string;
   date: string;
   definition: InstrumentDefinition;
+  model: Model;
   values: Record<string, FieldValue>;
+  extra: OrderExtra;
   customer: CustomerInfo;
-  /** url -> data URI of downloaded reference images */
+  /** url -> data URI of downloaded images */
   imageData: Map<string, string>;
   logoSrc?: string;
 }) {
@@ -134,9 +142,11 @@ function OrderPdf({
     byStep.set(e.stepId, list);
   }
 
-  const references = entries.filter(
+  const fieldReferences = entries.filter(
     (e) => e.images.length > 0 && e.images.some((i) => imageData.has(i.url)),
   );
+  const generalReferences = extra.references.filter((i) => imageData.has(i.url));
+  const hasReferences = fieldReferences.length > 0 || generalReferences.length > 0;
 
   const sourceLabels: Record<string, { pt: string; en: string }> = {
     referral: { pt: "Indicação", en: "Referral" },
@@ -160,7 +170,9 @@ function OrderPdf({
         <Text style={styles.coverMeta}>
           {t.date}: {date}
         </Text>
-        <Text style={styles.coverMeta}>{definition.name[lang]}</Text>
+        <Text style={styles.coverMeta}>
+          {definition.name[lang]} — {model.name} ({model.scale})
+        </Text>
       </Page>
 
       {/* Content */}
@@ -193,6 +205,19 @@ function OrderPdf({
         )}
 
         <Text style={styles.sectionTitle}>{t.specs}</Text>
+        <View style={styles.row}>
+          <Text style={styles.rowLabel}>{t.instrument}</Text>
+          <Text style={styles.rowValue}>{definition.name[lang]}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.rowLabel}>{t.model}</Text>
+          <Text style={styles.rowValue}>{model.name}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.rowLabel}>{t.scale}</Text>
+          <Text style={styles.rowValue}>{model.scale}</Text>
+        </View>
+
         {definition.steps.map((step) => {
           const stepEntries = byStep.get(step.id) ?? [];
           if (stepEntries.length === 0) return null;
@@ -222,10 +247,10 @@ function OrderPdf({
           );
         })}
 
-        {customer.notes && (
+        {extra.observations && (
           <>
             <Text style={styles.sectionTitle}>{t.notes}</Text>
-            <Text style={styles.notes}>{customer.notes}</Text>
+            <Text style={styles.notes}>{extra.observations}</Text>
           </>
         )}
 
@@ -235,14 +260,23 @@ function OrderPdf({
       </Page>
 
       {/* Reference images */}
-      {references.length > 0 && (
+      {hasReferences && (
         <Page size="A4" style={styles.page}>
           <View style={styles.brandRow} fixed>
             <Text style={styles.brand}>BOCATTO</Text>
             <Text style={styles.brandSub}>LUTHIERIA · {order}</Text>
           </View>
           <Text style={styles.sectionTitle}>{t.references}</Text>
-          {references.map((entry) =>
+
+          {generalReferences.map((img) => (
+            <View key={img.url} style={styles.refBlock} wrap={false}>
+              <Text style={styles.refCaption}>{t.generalReference}</Text>
+              {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image has no alt prop */}
+              <Image src={imageData.get(img.url)!} style={styles.refImage} />
+            </View>
+          ))}
+
+          {fieldReferences.map((entry) =>
             entry.images
               .filter((img) => imageData.has(img.url))
               .map((img) => (
@@ -266,19 +300,18 @@ function OrderPdf({
   );
 }
 
-/** Downloads/reads reference images and returns them as data URIs. */
+/** Downloads/reads images and returns them as data URIs (skips webp). */
 async function collectImages(
-  entries: SummaryEntry[],
+  urls: string[],
   origin: string,
 ): Promise<Map<string, string>> {
   const map = new Map<string, string>();
-  const urls = entries.flatMap((e) => e.images.map((i) => i.url));
 
-  for (const url of urls.slice(0, 12)) {
+  for (const url of urls.slice(0, 16)) {
+    if (map.has(url)) continue;
     try {
       let buffer: Buffer;
       if (url.startsWith("/")) {
-        // Local dev upload: read straight from /public.
         const localPath = path.join(process.cwd(), "public", ...url.split("/").filter(Boolean));
         buffer = await readFile(localPath);
       } else {
@@ -305,12 +338,18 @@ export async function generateOrderPdf(opts: {
   lang: Lang;
   order: string;
   definition: InstrumentDefinition;
+  model: Model;
   values: Record<string, FieldValue>;
+  extra: OrderExtra;
   customer: CustomerInfo;
   origin: string;
 }): Promise<Buffer> {
   const entries = buildSummary(opts.definition, opts.values);
-  const imageData = await collectImages(entries, opts.origin);
+  const urls = [
+    ...entries.flatMap((e) => e.images.map((i) => i.url)),
+    ...opts.extra.references.map((i) => i.url),
+  ];
+  const imageData = await collectImages(urls, opts.origin);
 
   let logoSrc: string | undefined;
   try {
@@ -331,7 +370,9 @@ export async function generateOrderPdf(opts: {
       order={opts.order}
       date={date}
       definition={opts.definition}
+      model={opts.model}
       values={opts.values}
+      extra={opts.extra}
       customer={opts.customer}
       imageData={imageData}
       logoSrc={logoSrc}

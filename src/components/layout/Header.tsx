@@ -8,7 +8,7 @@ import Brand from "./Brand";
 const links = [
   { href: "/", key: "home" },
   { href: "/sobre", key: "about" },
-  { href: "/configurador", key: "configurator" },
+  { href: "/criacao", key: "create" },
   { href: "/contato", key: "contact" },
 ] as const;
 

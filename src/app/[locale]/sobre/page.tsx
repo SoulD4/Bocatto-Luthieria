@@ -122,7 +122,7 @@ export default function AboutPage({
 
           <Reveal>
             <div className="text-center mt-14">
-              <ButtonLink href="/configurador">{t("catalogCta")}</ButtonLink>
+              <ButtonLink href="/criacao">{t("catalogCta")}</ButtonLink>
             </div>
           </Reveal>
         </div>

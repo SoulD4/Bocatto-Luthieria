@@ -1,15 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { motion } from "motion/react";
 import type { InstrumentDefinition } from "@/data/instruments/types";
 import type { Locale } from "@/i18n/routing";
 import { useConfigurator } from "@/store/configurator";
-import { buildSummary } from "@/lib/summary";
-import { Button } from "@/components/ui/Button";
-import Turnstile from "@/components/ui/Turnstile";
+import { buildSummary, getModel, type SummaryEntry } from "@/lib/summary";
 
 const GuitarViewer = dynamic(() => import("./GuitarViewer"), {
   ssr: false,
@@ -20,9 +18,6 @@ const GuitarViewer = dynamic(() => import("./GuitarViewer"), {
   ),
 });
 
-const inputClass =
-  "w-full bg-surface-2 border border-line rounded-sm px-4 py-3 text-sm text-cream placeholder:text-muted/60 focus:outline-none focus:border-gold/70 transition-colors";
-
 export type OrderResult = {
   order: string;
   /** Null when file storage is unavailable — the PDF still goes by e-mail. */
@@ -30,38 +25,29 @@ export type OrderResult = {
   whatsappUrl: string;
 };
 
+/** Etapa 6 — final review: 3D + spec sheet with edit jumps to each step. */
 export default function Review({
   definition,
   onEdit,
-  onSuccess,
 }: {
   definition: InstrumentDefinition;
+  /** Jump to a flow step index (0=Modelo, 1..3=field steps, 4=Referências). */
   onEdit: (stepIndex: number) => void;
-  onSuccess: (result: OrderResult) => void;
 }) {
   const t = useTranslations("config");
   const lang = useLocale() as Locale;
+  const modelId = useConfigurator((s) => s.modelId);
   const values = useConfigurator((s) => s.values);
+  const extra = useConfigurator((s) => s.extra);
 
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<"generic" | "rate" | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [token, setToken] = useState("");
-  const [customer, setCustomer] = useState({
-    name: "",
-    email: "",
-    whatsapp: "",
-    notes: "",
-    source: "",
-  });
-
+  const model = getModel(definition, modelId);
   const entries = useMemo(
     () => buildSummary(definition, values),
     [definition, values],
   );
 
   const grouped = useMemo(() => {
-    const map = new Map<string, typeof entries>();
+    const map = new Map<string, SummaryEntry[]>();
     for (const e of entries) {
       const list = map.get(e.stepId) ?? [];
       list.push(e);
@@ -69,53 +55,6 @@ export default function Review({
     }
     return map;
   }, [entries]);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const newErrors: Record<string, string> = {};
-    if (customer.name.trim().length < 2) newErrors.name = t("validationName");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email.trim()))
-      newErrors.email = t("validationEmail");
-    if (customer.whatsapp.replace(/\D/g, "").length < 10)
-      newErrors.whatsapp = t("validationWhatsapp");
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
-
-    setSubmitting(true);
-    setSubmitError(null);
-    try {
-      const form = new FormData(e.currentTarget);
-      const res = await fetch("/api/pedido", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          locale: lang,
-          instrumentId: definition.id,
-          values,
-          customer: {
-            name: customer.name.trim(),
-            email: customer.email.trim(),
-            whatsapp: customer.whatsapp.trim(),
-            notes: customer.notes.trim(),
-            source: customer.source,
-          },
-          website: String(form.get("website") ?? ""),
-          turnstileToken: token,
-        }),
-      });
-      if (res.status === 429) {
-        setSubmitError("rate");
-        return;
-      }
-      if (!res.ok) throw new Error(String(res.status));
-      const data = (await res.json()) as OrderResult;
-      onSuccess(data);
-    } catch {
-      setSubmitError("generic");
-    } finally {
-      setSubmitting(false);
-    }
-  }
 
   return (
     <motion.div
@@ -130,14 +69,40 @@ export default function Review({
 
       {/* 3D visualization */}
       <div className="card-premium rounded-md mb-10 overflow-hidden">
-        <GuitarViewer values={values} />
+        <GuitarViewer modelId={modelId} values={values} />
         <p className="text-[0.7rem] text-muted text-center px-4 pb-4">
           {t("viewerHint")}
         </p>
       </div>
 
-      {/* Summary grouped by step */}
-      <div className="space-y-4 mb-12">
+      {/* Model */}
+      <section className="card-premium rounded-md p-6 mb-4">
+        <header className="flex items-center justify-between mb-4">
+          <h3 className="[font-family:var(--font-display)] text-xl gold-text">
+            {t("summaryModel")}
+          </h3>
+          <button
+            type="button"
+            onClick={() => onEdit(0)}
+            className="text-xs uppercase tracking-[0.15em] text-muted hover:text-gold transition-colors cursor-pointer"
+          >
+            {t("edit")} →
+          </button>
+        </header>
+        {model ? (
+          <p className="text-cream/90 text-sm">
+            <span className="[font-family:var(--font-display)] text-lg">
+              {model.name}
+            </span>
+            <span className="text-muted"> · {t("modelScale")} {model.scale}</span>
+          </p>
+        ) : (
+          <p className="text-muted/60 text-sm">—</p>
+        )}
+      </section>
+
+      {/* Spec sheet grouped by step */}
+      <div className="space-y-4 mb-4">
         {definition.steps.map((step, stepIndex) => {
           const stepEntries = grouped.get(step.id) ?? [];
           return (
@@ -148,7 +113,7 @@ export default function Review({
                 </h3>
                 <button
                   type="button"
-                  onClick={() => onEdit(stepIndex)}
+                  onClick={() => onEdit(stepIndex + 1)}
                   className="text-xs uppercase tracking-[0.15em] text-muted hover:text-gold transition-colors cursor-pointer"
                 >
                   {t("edit")} →
@@ -206,113 +171,41 @@ export default function Review({
         })}
       </div>
 
-      {/* Customer data + submit */}
-      <form onSubmit={handleSubmit} noValidate className="card-premium rounded-md p-6 md:p-8">
-        <h3 className="[font-family:var(--font-display)] text-2xl mb-1">
-          {t("customerTitle")}
-        </h3>
-        <p className="text-muted text-sm mb-7">{t("customerSubtitle")}</p>
-
-        <div className="grid gap-5 md:grid-cols-2">
-          <div>
-            <label htmlFor="c-name" className="block text-xs uppercase tracking-[0.2em] text-muted mb-2">
-              {t("customerName")}
-            </label>
-            <input
-              id="c-name"
-              type="text"
-              className={inputClass}
-              value={customer.name}
-              onChange={(e) => setCustomer({ ...customer, name: e.target.value })}
-            />
-            {errors.name && <p className="text-red-400/90 text-xs mt-1.5">{errors.name}</p>}
-          </div>
-          <div>
-            <label htmlFor="c-email" className="block text-xs uppercase tracking-[0.2em] text-muted mb-2">
-              {t("customerEmail")}
-            </label>
-            <input
-              id="c-email"
-              type="email"
-              className={inputClass}
-              value={customer.email}
-              onChange={(e) => setCustomer({ ...customer, email: e.target.value })}
-            />
-            {errors.email && <p className="text-red-400/90 text-xs mt-1.5">{errors.email}</p>}
-          </div>
-          <div>
-            <label htmlFor="c-wa" className="block text-xs uppercase tracking-[0.2em] text-muted mb-2">
-              {t("customerWhatsapp")}
-            </label>
-            <input
-              id="c-wa"
-              type="tel"
-              placeholder="(11) 99999-9999"
-              className={inputClass}
-              value={customer.whatsapp}
-              onChange={(e) => setCustomer({ ...customer, whatsapp: e.target.value })}
-            />
-            {errors.whatsapp && <p className="text-red-400/90 text-xs mt-1.5">{errors.whatsapp}</p>}
-          </div>
-          <div>
-            <label htmlFor="c-source" className="block text-xs uppercase tracking-[0.2em] text-muted mb-2">
-              {t("customerSource")}
-            </label>
-            <select
-              id="c-source"
-              className={inputClass}
-              value={customer.source}
-              onChange={(e) => setCustomer({ ...customer, source: e.target.value })}
+      {/* References & notes */}
+      {(extra.observations.trim() || extra.references.length > 0) && (
+        <section className="card-premium rounded-md p-6">
+          <header className="flex items-center justify-between mb-4">
+            <h3 className="[font-family:var(--font-display)] text-xl gold-text">
+              {t("referencesTitle")}
+            </h3>
+            <button
+              type="button"
+              onClick={() => onEdit(definition.steps.length + 1)}
+              className="text-xs uppercase tracking-[0.15em] text-muted hover:text-gold transition-colors cursor-pointer"
             >
-              <option value="">—</option>
-              <option value="referral">{t("sourceReferral")}</option>
-              <option value="instagram">{t("sourceInstagram")}</option>
-              <option value="google">{t("sourceGoogle")}</option>
-              <option value="other">{t("sourceOther")}</option>
-            </select>
-          </div>
-          <div className="md:col-span-2">
-            <label htmlFor="c-notes" className="block text-xs uppercase tracking-[0.2em] text-muted mb-2">
-              {t("customerNotes")}
-            </label>
-            <textarea
-              id="c-notes"
-              rows={4}
-              maxLength={2000}
-              placeholder={t("customerNotesPlaceholder")}
-              className={inputClass}
-              value={customer.notes}
-              onChange={(e) => setCustomer({ ...customer, notes: e.target.value })}
-            />
-          </div>
-        </div>
-
-        {/* Honeypot */}
-        <input
-          type="text"
-          name="website"
-          tabIndex={-1}
-          autoComplete="off"
-          aria-hidden="true"
-          className="absolute -left-[9999px] h-0 w-0 opacity-0"
-        />
-
-        <div className="mt-6">
-          <Turnstile onToken={setToken} />
-        </div>
-
-        <div className="mt-8 flex flex-col items-start gap-3">
-          <Button type="submit" disabled={submitting}>
-            {submitting ? t("submitting") : t("submit")}
-          </Button>
-          {submitError === "generic" && (
-            <p className="text-red-400/90 text-sm">{t("submitError")}</p>
+              {t("edit")} →
+            </button>
+          </header>
+          {extra.observations.trim() && (
+            <p className="text-cream/90 text-sm whitespace-pre-wrap mb-4">
+              {extra.observations}
+            </p>
           )}
-          {submitError === "rate" && (
-            <p className="text-red-400/90 text-sm">{t("rateLimited")}</p>
+          {extra.references.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {extra.references.map((img) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={img.url}
+                  src={img.url}
+                  alt={img.name}
+                  className="h-16 w-16 object-cover rounded-sm border border-line"
+                />
+              ))}
+            </div>
           )}
-        </div>
-      </form>
+        </section>
+      )}
     </motion.div>
   );
 }

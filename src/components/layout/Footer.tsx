@@ -22,7 +22,7 @@ export default function Footer() {
           <ul className="space-y-2 text-sm">
             <li><Link href="/" className="text-cream/75 hover:text-gold-light transition-colors">{nav("home")}</Link></li>
             <li><Link href="/sobre" className="text-cream/75 hover:text-gold-light transition-colors">{nav("about")}</Link></li>
-            <li><Link href="/configurador" className="text-cream/75 hover:text-gold-light transition-colors">{nav("configurator")}</Link></li>
+            <li><Link href="/criacao" className="text-cream/75 hover:text-gold-light transition-colors">{nav("create")}</Link></li>
             <li><Link href="/contato" className="text-cream/75 hover:text-gold-light transition-colors">{nav("contact")}</Link></li>
           </ul>
         </div>

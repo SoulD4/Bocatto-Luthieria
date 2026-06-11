@@ -4,16 +4,17 @@ import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { UploadedImage } from "@/store/configurator";
 
-const MAX_IMAGES = 2;
 const MAX_SIZE = 8 * 1024 * 1024;
 const ALLOWED = ["image/jpeg", "image/png", "image/webp"];
 
 export default function ImageUpload({
   images,
   onChange,
+  max = 2,
 }: {
   images: UploadedImage[];
   onChange: (images: UploadedImage[]) => void;
+  max?: number;
 }) {
   const t = useTranslations("config");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -67,7 +68,7 @@ export default function ImageUpload({
         </ul>
       )}
 
-      {images.length < MAX_IMAGES && (
+      {images.length < max && (
         <div>
           <input
             ref={inputRef}
