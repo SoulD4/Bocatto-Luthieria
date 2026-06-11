@@ -6,7 +6,9 @@ export type Option = {
   id: string;
   label: Localized;
   description?: Localized;
-  /** Wood/finish color hint used by the 3D viewer and option swatches. */
+  /** Reference photo shown on the option card (path under /refs). */
+  image?: string;
+  /** Wood/finish color hint shown when there is no photo. */
   swatch?: string;
 };
 
@@ -40,15 +42,6 @@ export type Step = {
   fields: Field[];
 };
 
-/** Body-shape hint consumed by the 3D viewer. */
-export type BodyShape =
-  | "om"
-  | "dreadnought"
-  | "jumbo"
-  | "parlor"
-  | "auditorio"
-  | "classico";
-
 /** A concrete instrument the customer can start from (first creation step). */
 export type Model = {
   id: string;
@@ -58,14 +51,15 @@ export type Model = {
   scale: string;
   description: Localized;
   characteristics: Localized[];
-  shape: BodyShape;
+  /** Technical blueprint image of the model (path under /refs/modelos). */
+  image: string;
 };
 
 /**
  * One instrument family (e.g. steel-string acoustic). Adding nylon guitars,
  * electric guitars, basses or violas later means creating a sibling
- * InstrumentDefinition and registering it — the wizard, summary, PDF and 3D
- * viewer are all driven by this data, so no screens need to change.
+ * InstrumentDefinition and registering it — the wizard, summary and PDF are
+ * all driven by this data, so no screens need to change.
  */
 export type InstrumentDefinition = {
   id: string;

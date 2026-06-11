@@ -29,6 +29,8 @@ export type SummaryEntry = {
   /** Label of the chosen option (choice fields). */
   valueLabel?: Localized;
   swatch?: string;
+  /** Reference photo of the chosen option, when it has one. */
+  image?: string;
   isOther: boolean;
   otherText?: string;
   text?: string;
@@ -92,6 +94,7 @@ export function buildSummary(
         answered: Boolean(value?.optionId),
         valueLabel: option?.label,
         swatch: option?.swatch,
+        image: option?.image,
         isOther,
         otherText: isOther ? value?.otherText?.trim() : undefined,
         images: isOther ? (value?.images ?? []) : [],

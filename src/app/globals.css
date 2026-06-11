@@ -74,3 +74,11 @@ select {
   scrollbar-width: thin;
   scrollbar-color: var(--color-surface-3) transparent;
 }
+
+/* Hidden scrollbar (progress rail and other horizontal strips) */
+.scrollbar-hidden {
+  scrollbar-width: none;
+}
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
