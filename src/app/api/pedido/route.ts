@@ -185,14 +185,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "pdf_failed" }, { status: 500 });
   }
 
-  // 2. Store it so WhatsApp/e-mail can link to it.
-  let pdfUrl: string;
+  // 2. Try to store it so WhatsApp/e-mail can link to it. Storage problems
+  // (e.g. Vercel without a Blob store) must NOT kill the order: the PDF
+  // still reaches everyone as an e-mail attachment.
+  let pdfUrl: string | null = null;
   try {
     const stored = await storeFile(pdfBuffer, ".pdf", "application/pdf", "pedidos");
     pdfUrl = stored.url.startsWith("http") ? stored.url : `${origin}${stored.url}`;
   } catch (err) {
-    console.error("[pedido] PDF storage failed:", err);
-    return NextResponse.json({ error: "storage_failed" }, { status: 500 });
+    console.error("[pedido] PDF storage failed (continuing without link):", err);
   }
 
   const summary = shortSummary(definition, values, lang);
@@ -207,7 +208,7 @@ export async function POST(request: Request) {
         <strong>WhatsApp:</strong> <a href="https://wa.me/${customer.whatsapp.replace(/\D/g, "")}" style="color:#c9a227;">${customer.whatsapp}</a></p>
      <p><strong>Resumo:</strong> ${summary || "—"}</p>
      ${customer.notes ? `<p><strong>Observações:</strong> ${customer.notes}</p>` : ""}
-     <p>PDF completo em anexo e em <a href="${pdfUrl}" style="color:#c9a227;">${pdfUrl}</a></p>`,
+     <p>PDF completo em anexo${pdfUrl ? ` e em <a href="${pdfUrl}" style="color:#c9a227;">${pdfUrl}</a>` : ""}.</p>`,
   );
 
   const clientSubject =
@@ -251,6 +252,7 @@ export async function POST(request: Request) {
     lang,
     order,
     name: customer.name,
+    instrument: definition.name[lang],
     summary,
     pdfUrl,
   });

@@ -2,7 +2,6 @@
   "common": {
     "brand": "Bocatto Luthieria",
     "tagline": "Instruments handcrafted, one at a time.",
-    "priceLine": "Instruments starting at R$ 9,000 (BRL)",
     "ctaConfigure": "Build your guitar",
     "learnMore": "Discover Bocatto"
   },
@@ -76,7 +75,7 @@
     "welcomeKicker": "Bocatto Configurator",
     "welcomeTitle": "Let's design your guitar",
     "welcomeBody": "In a few steps you choose woods, shape, finish and details. At the end we generate an elegant document with everything you selected and send it to the luthier — no commitment.",
-    "welcomeNote": "The final price is defined by the luthier for each project. Instruments starting at R$ 9,000 (BRL).",
+    "welcomeNote": "The quote is prepared personally by the luthier after reviewing your order.",
     "welcomeStart": "Start",
     "stepLabel": "Step {current} of {total}",
     "next": "Next",
@@ -128,7 +127,9 @@
     "leaveWarning": "You have a configuration in progress. Leave anyway?"
   },
   "wa": {
-    "message": "Hello! I've just designed my guitar on the Bocatto Luthieria website. 🎶\nOrder: {order} — {name}\n{summary}\nFull PDF: {link}"
+    "message": "Hello! I've just designed my instrument on the Bocatto Luthieria website. 🎶\nOrder: {order}\nName: {name}\nInstrument: {instrument}\nSummary: {summary}\n{pdfLine}",
+    "pdfLink": "Full PDF: {link}",
+    "pdfByEmail": "The full PDF with all specifications was sent by e-mail."
   },
   "pdf": {
     "docTitle": "Custom Instrument Order",

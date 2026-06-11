@@ -15,7 +15,6 @@
 
   --font-display: var(--font-cormorant), "Georgia", serif;
   --font-body: var(--font-jost), "Segoe UI", sans-serif;
-  --font-script: var(--font-script), cursive;
 }
 
 html {

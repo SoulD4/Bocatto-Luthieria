@@ -1,19 +1,23 @@
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 
 /**
- * Gold script wordmark recreating the official logo's calligraphy on dark
- * backgrounds (the PNG logo has a light marble background, so it is reserved
- * for light surfaces such as the PDF).
+ * Official Bocatto logo (gold lettering on black). The artwork's black
+ * background disappears over the site's dark theme via mix-blend screen,
+ * preserving the logo exactly as delivered.
  */
 export default function Brand({ compact = false }: { compact?: boolean }) {
   return (
-    <Link href="/" className="group inline-flex items-baseline gap-2">
-      <span
-        className="gold-text [font-family:var(--font-script)] leading-none"
-        style={{ fontSize: compact ? "1.9rem" : "2.4rem" }}
-      >
-        Bocatto
-      </span>
+    <Link href="/" className="group inline-flex items-baseline gap-2.5">
+      <Image
+        src="/brand/logo-gold.png"
+        alt="Bocatto"
+        width={974}
+        height={280}
+        priority
+        className="w-auto"
+        style={{ height: compact ? "1.9rem" : "2.4rem" }}
+      />
       <span className="text-cream/80 tracking-[0.35em] uppercase text-[0.65rem] group-hover:text-gold-light transition-colors">
         Luthieria
       </span>

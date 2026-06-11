@@ -2,7 +2,6 @@
   "common": {
     "brand": "Bocatto Luthieria",
     "tagline": "Instrumentos feitos à mão, um a um.",
-    "priceLine": "Instrumentos a partir de R$ 9.000",
     "ctaConfigure": "Monte o seu violão",
     "learnMore": "Conheça a Bocatto"
   },
@@ -41,11 +40,11 @@
     "title": "Sobre a Bocatto",
     "kicker": "Nossa história",
     "historyTitle": "Uma vida dedicada à madeira e ao som",
-    "historyBody1": "A Bocatto Luthieria nasceu da paixão de transformar madeira em música. No nosso atelier, cada instrumento é construído do zero, à mão, seguindo técnicas tradicionais de luthieria refinadas ao longo de anos de ofício.",
+    "historyBody1": "A Bocatto Luthieria nasceu da paixão de transformar madeira em música. Na nossa oficina de luthieria, cada instrumento é construído do zero, à mão, seguindo técnicas tradicionais refinadas ao longo de anos de ofício.",
     "historyBody2": "Não trabalhamos com produção em série. Cada violão é um projeto único, desenhado em conversa com quem vai tocá-lo — das madeiras do tampo ao desenho da roseta.",
     "philosophyTitle": "Filosofia de construção",
     "philosophyBody": "Acreditamos que um grande instrumento nasce do equilíbrio entre tradição e personalidade. Por isso, ouvimos antes de construir: seu repertório, seu toque e suas referências guiam cada decisão de projeto.",
-    "catalogTitle": "Alguns exemplos do atelier",
+    "catalogTitle": "Alguns exemplos da Oficina Bocatto",
     "catalogIntro": "Uma pequena amostra de projetos que já saíram da nossa bancada. O seu pode ser o próximo.",
     "catalogCta": "Monte o seu violão",
     "specTop": "Tampo",
@@ -76,7 +75,7 @@
     "welcomeKicker": "Configurador Bocatto",
     "welcomeTitle": "Vamos desenhar o seu violão",
     "welcomeBody": "Em poucas etapas você escolhe madeiras, formato, acabamento e detalhes. Ao final, geramos um documento elegante com tudo o que você escolheu e enviamos ao luthier — sem compromisso.",
-    "welcomeNote": "O valor final é definido pelo luthier conforme o projeto. Instrumentos a partir de R$ 9.000.",
+    "welcomeNote": "O orçamento é feito pessoalmente pelo luthier após a análise do seu pedido.",
     "welcomeStart": "Começar",
     "stepLabel": "Etapa {current} de {total}",
     "next": "Avançar",
@@ -128,7 +127,9 @@
     "leaveWarning": "Você tem uma configuração em andamento. Sair mesmo assim?"
   },
   "wa": {
-    "message": "Olá! Acabei de montar meu violão no site da Bocatto Luthieria. 🎶\nPedido: {order} — {name}\n{summary}\nPDF completo: {link}"
+    "message": "Olá! Acabei de montar meu instrumento no site da Bocatto Luthieria. 🎶\nPedido: {order}\nNome: {name}\nInstrumento: {instrument}\nResumo: {summary}\n{pdfLine}",
+    "pdfLink": "PDF completo: {link}",
+    "pdfByEmail": "O PDF completo com todas as especificações foi enviado por e-mail."
   },
   "pdf": {
     "docTitle": "Pedido de Instrumento Personalizado",

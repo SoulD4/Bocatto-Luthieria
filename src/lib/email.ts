@@ -21,7 +21,7 @@ const FROM =
 
 /** E-mail address of the luthier who receives the orders. */
 export const LUTHIER_EMAIL =
-  process.env.LUTHIER_EMAIL ?? "luthier@example.com";
+  process.env.LUTHIER_EMAIL ?? "cadubocatto83@gmail.com";
 
 export async function sendMail(mail: Mail): Promise<{ ok: boolean }> {
   const apiKey = process.env.RESEND_API_KEY;
@@ -63,8 +63,7 @@ export function emailShell(title: string, bodyHtml: string): string {
 <html>
   <body style="margin:0;padding:0;background:#0c0a07;font-family:Georgia,serif;color:#f2ead9;">
     <div style="max-width:560px;margin:0 auto;padding:32px 24px;">
-      <p style="font-size:30px;margin:0 0 4px;color:#c9a227;font-style:italic;">Bocatto</p>
-      <p style="font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#a89d8a;margin:0 0 28px;">Luthieria</p>
+      <p style="font-size:16px;letter-spacing:5px;text-transform:uppercase;color:#c9a227;margin:0 0 28px;">Bocatto Luthieria</p>
       <h1 style="font-size:22px;font-weight:normal;color:#f2ead9;margin:0 0 16px;">${title}</h1>
       <div style="font-size:15px;line-height:1.6;color:#d8cfbd;">${bodyHtml}</div>
       <hr style="border:none;border-top:1px solid #2e271c;margin:28px 0;" />

@@ -25,7 +25,8 @@ const inputClass =
 
 export type OrderResult = {
   order: string;
-  pdfUrl: string;
+  /** Null when file storage is unavailable — the PDF still goes by e-mail. */
+  pdfUrl: string | null;
   whatsappUrl: string;
 };
 

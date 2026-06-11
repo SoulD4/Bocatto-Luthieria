@@ -4,10 +4,10 @@
  */
 export const site = {
   name: "Bocatto Luthieria",
-  /** WhatsApp number in international format, digits only (e.g. 5511999999999). */
-  whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "5500000000000",
+  /** WhatsApp number in international format, digits only. */
+  whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "5519997581354",
   /** Public contact e-mail shown on the site. */
   contactEmail:
-    process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "contato@bocattoluthieria.com",
+    process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "cadubocatto83@gmail.com",
   instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL ?? "",
 } as const;

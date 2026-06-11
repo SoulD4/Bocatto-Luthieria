@@ -29,6 +29,15 @@ export async function storeFile(
     return { url: blob.url };
   }
 
+  // On Vercel the filesystem is read-only: without a Blob store there is
+  // nowhere to persist files. Fail with a clear message so callers can
+  // degrade gracefully (the order flow continues without a public PDF link).
+  if (process.env.VERCEL) {
+    throw new Error(
+      "storage unavailable: create a Vercel Blob store so BLOB_READ_WRITE_TOKEN is set",
+    );
+  }
+
   // Local fallback: served from /public.
   const filePath = path.join(process.cwd(), "public", "uploads", name);
   await mkdir(path.dirname(filePath), { recursive: true });

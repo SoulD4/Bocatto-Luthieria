@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: GOLD,
   },
-  brand: { fontSize: 14, fontFamily: "Times-BoldItalic", color: INK },
+  brand: { fontSize: 10, fontFamily: "Times-Bold", color: INK, letterSpacing: 2 },
   brandSub: { fontSize: 8, color: MUTED, letterSpacing: 3 },
   sectionTitle: {
     fontSize: 13,
@@ -166,7 +166,7 @@ function OrderPdf({
       {/* Content */}
       <Page size="A4" style={styles.page}>
         <View style={styles.brandRow} fixed>
-          <Text style={styles.brand}>Bocatto</Text>
+          <Text style={styles.brand}>BOCATTO</Text>
           <Text style={styles.brandSub}>LUTHIERIA · {order}</Text>
         </View>
 
@@ -238,7 +238,7 @@ function OrderPdf({
       {references.length > 0 && (
         <Page size="A4" style={styles.page}>
           <View style={styles.brandRow} fixed>
-            <Text style={styles.brand}>Bocatto</Text>
+            <Text style={styles.brand}>BOCATTO</Text>
             <Text style={styles.brandSub}>LUTHIERIA · {order}</Text>
           </View>
           <Text style={styles.sectionTitle}>{t.references}</Text>
@@ -314,7 +314,7 @@ export async function generateOrderPdf(opts: {
 
   let logoSrc: string | undefined;
   try {
-    // Downscaled copy (~400 KB) — the original logo would balloon every PDF.
+    // Downscaled official logo — the full-resolution art would balloon every PDF.
     const logo = await readFile(path.join(process.cwd(), "public", "logo-pdf.png"));
     logoSrc = `data:image/png;base64,${logo.toString("base64")}`;
   } catch {

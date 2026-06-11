@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { useTranslations, useLocale } from "next-intl";
 import { use } from "react";
@@ -45,6 +46,15 @@ export default function AboutPage({
             <p>{t("historyBody1")}</p>
             <p>{t("historyBody2")}</p>
           </div>
+        </Reveal>
+        <Reveal delay={0.15}>
+          <Image
+            src="/brand/wood-engraving.jpg"
+            alt="Bocatto gravado em madeira"
+            width={1200}
+            height={1200}
+            className="mt-12 mx-auto w-full max-w-xl rounded-md border border-line/60 shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+          />
         </Reveal>
       </section>
 

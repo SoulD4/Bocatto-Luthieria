@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Jost, Great_Vibes } from "next/font/google";
+import { Cormorant_Garamond, Jost } from "next/font/google";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -17,12 +17,6 @@ const cormorant = Cormorant_Garamond({
 const jost = Jost({
   variable: "--font-jost",
   subsets: ["latin"],
-});
-
-const greatVibes = Great_Vibes({
-  variable: "--font-script",
-  subsets: ["latin"],
-  weight: "400",
 });
 
 export function generateStaticParams() {
@@ -57,10 +51,7 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   return (
-    <html
-      lang={locale}
-      className={`${cormorant.variable} ${jost.variable} ${greatVibes.variable}`}
-    >
+    <html lang={locale} className={`${cormorant.variable} ${jost.variable}`}>
       <body className="bg-stage min-h-screen flex flex-col">
         <NextIntlClientProvider>
           <Header />

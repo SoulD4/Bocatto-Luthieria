@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { useTranslations } from "next-intl";
 import { use } from "react";
@@ -24,7 +25,6 @@ export default function HomePage({
   const { locale } = use(params);
   setRequestLocale(locale);
   const t = useTranslations("home");
-  const common = useTranslations("common");
 
   return (
     <div className="pt-16">
@@ -35,12 +35,17 @@ export default function HomePage({
             <p className="text-gold text-xs uppercase tracking-[0.35em] mb-6">
               {t("heroKicker")}
             </p>
-            <h1 className="[font-family:var(--font-display)] text-4xl md:text-6xl leading-[1.08] mb-3">
+            <h1 className="[font-family:var(--font-display)] text-4xl md:text-6xl leading-[1.08] mb-5">
               {t("heroTitle")}
             </h1>
-            <p className="gold-text [font-family:var(--font-script)] text-5xl md:text-6xl mb-8 pr-4 leading-[1.3]">
-              Bocatto
-            </p>
+            <Image
+              src="/brand/logo-gold.png"
+              alt="Bocatto"
+              width={974}
+              height={280}
+              priority
+              className="h-16 md:h-20 w-auto mb-8"
+            />
             <p className="text-muted text-lg max-w-xl mb-10">
               {t("heroSubtitle")}
             </p>
@@ -95,10 +100,9 @@ export default function HomePage({
             <p className="text-xs uppercase tracking-[0.35em] text-muted mb-3">
               {t("priceTitle")}
             </p>
-            <p className="[font-family:var(--font-display)] text-2xl md:text-3xl gold-text">
-              {common("priceLine")}
+            <p className="[font-family:var(--font-display)] text-2xl md:text-3xl gold-text max-w-2xl mx-auto">
+              {t("priceBody")}
             </p>
-            <p className="text-muted text-sm mt-3">{t("priceBody")}</p>
           </div>
         </Reveal>
       </section>

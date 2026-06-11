@@ -64,7 +64,7 @@ export const catalog: CatalogItem[] = [
     backSides: { pt: "Maple flameado", en: "Flamed maple" },
     strings: { pt: "Nylon", en: "Nylon" },
     description: {
-      pt: "Peça de atelier com fundo em maple flameado, roseta em mosaico e acabamento goma-laca.",
+      pt: "Peça exclusiva da oficina com fundo em maple flameado, roseta em mosaico e acabamento goma-laca.",
       en: "A workshop showpiece with flamed maple back, mosaic rosette and shellac finish.",
     },
     woodFrom: "#a87b3f",

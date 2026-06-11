@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/Button";
@@ -13,6 +14,18 @@ export default function Success({
   onRestart: () => void;
 }) {
   const t = useTranslations("config");
+  const opened = useRef(false);
+
+  // Open WhatsApp automatically with the ready-to-send message. If the
+  // browser blocks the popup, the highlighted button below is the fallback.
+  useEffect(() => {
+    if (opened.current) return;
+    opened.current = true;
+    const timer = setTimeout(() => {
+      window.open(result.whatsappUrl, "_blank", "noopener,noreferrer");
+    }, 900);
+    return () => clearTimeout(timer);
+  }, [result.whatsappUrl]);
 
   return (
     <motion.div
@@ -42,14 +55,16 @@ export default function Success({
         >
           {t("successWhatsapp")}
         </a>
-        <a
-          href={result.pdfUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2 rounded-sm px-7 py-3 text-sm tracking-[0.12em] uppercase border border-gold/60 text-gold hover:bg-gold/10 transition-all"
-        >
-          {t("successDownload")}
-        </a>
+        {result.pdfUrl && (
+          <a
+            href={result.pdfUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 rounded-sm px-7 py-3 text-sm tracking-[0.12em] uppercase border border-gold/60 text-gold hover:bg-gold/10 transition-all"
+          >
+            {t("successDownload")}
+          </a>
+        )}
       </div>
       <p className="text-[0.7rem] text-muted mb-12">{t("successWhatsappHint")}</p>
 

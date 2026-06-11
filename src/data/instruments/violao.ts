@@ -341,7 +341,7 @@ export const violao: InstrumentDefinition = {
               id: "bocatto",
               label: { pt: "Desenho da casa Bocatto", en: "Bocatto house design" },
               description: {
-                pt: "O traço exclusivo do atelier.",
+                pt: "O traço exclusivo da Oficina Bocatto.",
                 en: "The workshop's exclusive design.",
               },
             },

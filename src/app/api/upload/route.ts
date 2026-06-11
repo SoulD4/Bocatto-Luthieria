@@ -57,6 +57,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_type" }, { status: 400 });
   }
 
-  const { url } = await storeFile(buffer, ALLOWED[sniffed], sniffed, "referencias");
-  return NextResponse.json({ url });
+  try {
+    const { url } = await storeFile(buffer, ALLOWED[sniffed], sniffed, "referencias");
+    return NextResponse.json({ url });
+  } catch (err) {
+    console.error("[upload] storage failed:", err);
+    return NextResponse.json({ error: "storage_unavailable" }, { status: 503 });
+  }
 }
