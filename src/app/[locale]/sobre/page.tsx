@@ -5,8 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { use } from "react";
 import { ButtonLink } from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
-import GuitarArt from "@/components/art/GuitarArt";
-import { catalog } from "@/data/catalog";
+import { defaultInstrument } from "@/data/instruments/violao";
 import type { Locale } from "@/i18n/routing";
 
 export async function generateMetadata({
@@ -84,37 +83,40 @@ export default function AboutPage({
             </p>
           </Reveal>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {catalog.map((item, idx) => (
-              <Reveal key={item.id} delay={idx * 0.08}>
-                <article className="card-premium rounded-md p-6 h-full flex flex-col transition-colors duration-300">
-                  <div className="h-56 flex items-center justify-center mb-6">
-                    <GuitarArt
-                      woodFrom={item.woodFrom}
-                      woodTo={item.woodTo}
-                      className="h-full"
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {defaultInstrument.models.map((model, idx) => (
+              <Reveal key={model.id} delay={idx * 0.06}>
+                <article className="group card-premium rounded-lg overflow-hidden h-full flex flex-col transition-colors duration-300">
+                  <div className="relative aspect-[4/3] overflow-hidden bg-ink">
+                    <Image
+                      src={model.image}
+                      alt={model.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                     />
                   </div>
-                  <h3 className="[font-family:var(--font-display)] text-2xl gold-text mb-3">
-                    {item.name}
-                  </h3>
-                  <dl className="text-xs space-y-1.5 mb-4">
-                    <div className="flex justify-between gap-2">
-                      <dt className="text-muted uppercase tracking-wider">{t("specTop")}</dt>
-                      <dd className="text-cream/85 text-right">{item.top[lang]}</dd>
+                  <div className="p-6 flex flex-col flex-1">
+                    <div className="flex items-baseline justify-between gap-3 mb-3">
+                      <h3 className="[font-family:var(--font-display)] text-2xl gold-text">
+                        {model.name}
+                      </h3>
+                      <span className="text-[0.7rem] uppercase tracking-widest text-muted whitespace-nowrap">
+                        {model.scale}
+                      </span>
                     </div>
-                    <div className="flex justify-between gap-2">
-                      <dt className="text-muted uppercase tracking-wider">{t("specBody")}</dt>
-                      <dd className="text-cream/85 text-right">{item.backSides[lang]}</dd>
-                    </div>
-                    <div className="flex justify-between gap-2">
-                      <dt className="text-muted uppercase tracking-wider">{t("specStrings")}</dt>
-                      <dd className="text-cream/85 text-right">{item.strings[lang]}</dd>
-                    </div>
-                  </dl>
-                  <p className="text-muted text-sm leading-relaxed mt-auto">
-                    {item.description[lang]}
-                  </p>
+                    <p className="text-muted text-sm leading-relaxed mb-4">
+                      {model.description[lang]}
+                    </p>
+                    <ul className="space-y-1.5 mt-auto">
+                      {model.characteristics.map((c, i) => (
+                        <li key={i} className="text-xs text-cream/80 flex items-start gap-2">
+                          <span className="text-gold mt-0.5">·</span>
+                          {c[lang]}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </article>
               </Reveal>
             ))}

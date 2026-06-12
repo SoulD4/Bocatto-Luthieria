@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { AnimatePresence, motion } from "motion/react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import Brand from "./Brand";
 
@@ -24,7 +25,7 @@ function LocaleSwitcher() {
           {i > 0 && <span className="text-line">·</span>}
           <button
             onClick={() => router.replace(pathname, { locale: l })}
-            className={`uppercase px-1 py-1 transition-colors cursor-pointer ${
+            className={`uppercase px-2 py-2 transition-colors cursor-pointer ${
               locale === l
                 ? "text-gold"
                 : "text-muted hover:text-cream"
@@ -86,22 +87,36 @@ export default function Header() {
       </div>
 
       {/* Mobile menu */}
-      {open && (
-        <nav className="md:hidden border-t border-line/60 bg-ink/95 backdrop-blur-md">
-          {links.map(({ href, key }) => (
-            <Link
-              key={key}
-              href={href}
-              onClick={() => setOpen(false)}
-              className={`block px-6 py-4 text-sm tracking-wide border-b border-line/40 ${
-                pathname === href ? "text-gold" : "text-cream/85"
-              }`}
-            >
-              {t(key)}
-            </Link>
-          ))}
-        </nav>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.nav
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="md:hidden overflow-hidden border-t border-line/60 bg-ink/95 backdrop-blur-md"
+          >
+            {links.map(({ href, key }, i) => (
+              <motion.div
+                key={key}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.05 + i * 0.04, duration: 0.25 }}
+              >
+                <Link
+                  href={href}
+                  onClick={() => setOpen(false)}
+                  className={`block px-6 py-4 text-sm tracking-wide border-b border-line/40 ${
+                    pathname === href ? "text-gold" : "text-cream/85"
+                  }`}
+                >
+                  {t(key)}
+                </Link>
+              </motion.div>
+            ))}
+          </motion.nav>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

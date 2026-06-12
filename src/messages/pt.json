@@ -44,12 +44,9 @@
     "historyBody2": "Não trabalhamos com produção em série. Cada instrumento é um projeto único, desenhado em conversa com quem vai tocá-lo — das madeiras do tampo ao desenho da roseta.",
     "philosophyTitle": "Filosofia de construção",
     "philosophyBody": "Acreditamos que um grande instrumento nasce do equilíbrio entre tradição e personalidade. Por isso, ouvimos antes de construir: seu repertório, seu toque e suas referências guiam cada decisão de projeto.",
-    "catalogTitle": "Alguns exemplos da Oficina Bocatto",
-    "catalogIntro": "Uma pequena amostra de projetos que já saíram da nossa bancada. O seu pode ser o próximo.",
-    "catalogCta": "Criar o meu instrumento",
-    "specTop": "Tampo",
-    "specBody": "Laterais e fundo",
-    "specStrings": "Cordas"
+    "catalogTitle": "Os modelos Bocatto",
+    "catalogIntro": "Seis corpos, cada um com a sua voz. Todos desenhados na oficina e construídos sob medida, madeira a madeira.",
+    "catalogCta": "Criar o meu instrumento"
   },
   "contact": {
     "title": "Contato",
@@ -96,8 +93,10 @@
     "otherHelp": "Conte em detalhes o que deseja. Se quiser, anexe fotos de referência.",
     "otherRequired": "Descreva sua preferência para continuar.",
     "uploadCta": "Anexar foto de referência",
-    "uploadHint": "JPG, PNG ou WebP · até 8 MB · máx. 2 fotos",
-    "uploadError": "Não foi possível enviar a imagem. Verifique o formato (JPG/PNG/WebP) e o tamanho (até 8 MB).",
+    "uploadHint": "Fotos da galeria ou da câmera · otimizamos automaticamente · máx. {max}",
+    "uploadSending": "Enviando…",
+    "uploadError": "Não conseguimos ler essa imagem. Tente outra foto (JPG, PNG ou da câmera).",
+    "uploadErrorServer": "Não foi possível salvar a imagem agora. Tente novamente em instantes.",
     "uploadRemove": "Remover",
     "requiredField": "Escolha uma opção para continuar.",
     "optionalBadge": "Opcional",

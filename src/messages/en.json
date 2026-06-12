@@ -44,12 +44,9 @@
     "historyBody2": "We don't do serial production. Each instrument is a unique project, designed in conversation with the person who will play it — from the soundboard woods to the rosette design.",
     "philosophyTitle": "Building philosophy",
     "philosophyBody": "We believe a great instrument is born from the balance between tradition and personality. That's why we listen before we build: your repertoire, your touch and your references guide every design decision.",
-    "catalogTitle": "A few examples from the Bocatto workshop",
-    "catalogIntro": "A small sample of projects that have left our bench. Yours could be next.",
-    "catalogCta": "Create my instrument",
-    "specTop": "Top",
-    "specBody": "Back & sides",
-    "specStrings": "Strings"
+    "catalogTitle": "The Bocatto models",
+    "catalogIntro": "Six bodies, each with its own voice. All designed in the workshop and built to order, wood by wood.",
+    "catalogCta": "Create my instrument"
   },
   "contact": {
     "title": "Contact",
@@ -96,8 +93,10 @@
     "otherHelp": "Tell us in detail what you'd like. You can attach reference photos.",
     "otherRequired": "Please describe your preference to continue.",
     "uploadCta": "Attach reference photo",
-    "uploadHint": "JPG, PNG or WebP · up to 8 MB · max. 2 photos",
-    "uploadError": "Couldn't upload the image. Check the format (JPG/PNG/WebP) and size (up to 8 MB).",
+    "uploadHint": "Photos from your gallery or camera · optimized automatically · max. {max}",
+    "uploadSending": "Sending…",
+    "uploadError": "We couldn't read that image. Try another photo (JPG, PNG or from your camera).",
+    "uploadErrorServer": "Couldn't save the image right now. Please try again in a moment.",
     "uploadRemove": "Remove",
     "requiredField": "Pick an option to continue.",
     "optionalBadge": "Optional",

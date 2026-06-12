@@ -8,9 +8,9 @@ const base =
 
 const variants: Record<Variant, string> = {
   solid:
-    "bg-gradient-to-br from-gold-light via-gold to-gold-deep text-ink font-medium hover:brightness-110 hover:shadow-[0_0_30px_rgba(201,162,39,0.25)]",
+    "bg-gradient-to-br from-gold-light via-gold to-gold-deep text-ink font-medium hover:brightness-110 hover:shadow-[0_6px_30px_rgba(201,162,39,0.28)] hover:-translate-y-0.5 active:translate-y-0",
   outline:
-    "border border-gold/60 text-gold hover:bg-gold/10 hover:border-gold",
+    "border border-gold/60 text-gold hover:bg-gold/10 hover:border-gold hover:-translate-y-0.5 active:translate-y-0",
   ghost: "text-cream/80 hover:text-gold-light",
 };
 

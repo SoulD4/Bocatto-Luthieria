@@ -33,6 +33,12 @@ body {
   color: var(--color-ink);
 }
 
+/* Keyboard focus: discreet gold ring, consistent with the brand */
+:focus-visible {
+  outline: 2px solid rgba(201, 162, 39, 0.75);
+  outline-offset: 2px;
+}
+
 /* Subtle vignette for the dark stage */
 .bg-stage {
   background:

@@ -69,7 +69,7 @@ function ImageCard({
         {/* Legibility gradient behind the label */}
         <span
           aria-hidden
-          className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/85 via-black/35 to-transparent"
+          className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/45 to-transparent"
         />
         <span className="absolute inset-x-0 bottom-0 px-3.5 pb-3 pt-6">
           <span
@@ -80,7 +80,9 @@ function ImageCard({
             {label}
           </span>
           {sublabel && (
-            <span className="block text-[0.7rem] text-cream/60 mt-0.5">{sublabel}</span>
+            <span className="block text-[0.7rem] text-cream/70 mt-0.5 line-clamp-2">
+              {sublabel}
+            </span>
           )}
         </span>
         <AnimatePresence>{active && <SelectedBadge />}</AnimatePresence>

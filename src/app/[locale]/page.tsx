@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { use } from "react";
 import { ButtonLink } from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
-import GuitarArt from "@/components/art/GuitarArt";
 
 export async function generateMetadata({
   params,
@@ -58,9 +57,19 @@ export default function HomePage({
           </Reveal>
 
           <Reveal delay={0.15} className="hidden md:block">
-            <div className="relative mx-auto w-64">
-              <div className="absolute inset-0 -m-10 rounded-full bg-gold/5 blur-3xl" />
-              <GuitarArt className="relative w-full drop-shadow-[0_20px_50px_rgba(0,0,0,0.6)]" />
+            <div className="relative">
+              <div className="absolute inset-0 -m-12 rounded-full bg-gold/5 blur-3xl" />
+              {/* Official Bocatto OM technical blueprint */}
+              <div className="relative overflow-hidden rounded-lg border border-line shadow-[0_24px_70px_rgba(0,0,0,0.55)]">
+                <Image
+                  src="/refs/modelos/om.webp"
+                  alt="Blueprint técnico do Bocatto OM"
+                  width={800}
+                  height={600}
+                  priority
+                  className="w-full h-auto"
+                />
+              </div>
             </div>
           </Reveal>
         </div>
