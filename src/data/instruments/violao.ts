@@ -134,17 +134,17 @@ export const violaoAco: InstrumentDefinition = {
       ],
     },
     {
-      id: "fundo",
-      title: { pt: "Fundo", en: "Back" },
+      id: "fundoLateral",
+      title: { pt: "Fundo e Lateral", en: "Back & Sides" },
       intro: {
-        pt: "O fundo reflete e colore o som projetado pelo tampo.",
-        en: "The back reflects and colors the sound projected by the top.",
+        pt: "Fundo e laterais na mesma madeira: juntos, refletem e colorem o som projetado pelo tampo.",
+        en: "Back and sides in the same wood: together they reflect and color the sound projected by the top.",
       },
       fields: [
         {
           kind: "choice",
-          id: "fundo",
-          label: { pt: "Madeira do fundo", en: "Back wood" },
+          id: "fundoLateral",
+          label: { pt: "Madeira do fundo e laterais", en: "Back & sides wood" },
           required: true,
           allowOther: true,
           options: [
@@ -152,29 +152,6 @@ export const violaoAco: InstrumentDefinition = {
             { id: "mogno", label: { pt: "Mogno", en: "Mahogany" }, image: "/refs/fundo/mogno.webp" },
             { id: "maple", label: { pt: "Maple", en: "Maple" }, image: "/refs/fundo/maple.webp" },
             { id: "imbuia", label: { pt: "Imbuia", en: "Imbuia" }, image: "/refs/fundo/imbuia.webp" },
-          ],
-        },
-      ],
-    },
-    {
-      id: "lateral",
-      title: { pt: "Lateral", en: "Sides" },
-      intro: {
-        pt: "As laterais completam a caixa acústica — tradicionalmente na mesma madeira do fundo.",
-        en: "The sides complete the sound box — traditionally in the same wood as the back.",
-      },
-      fields: [
-        {
-          kind: "choice",
-          id: "lateral",
-          label: { pt: "Madeira das laterais", en: "Sides wood" },
-          required: true,
-          allowOther: true,
-          options: [
-            { id: "jacaranda", label: { pt: "Jacarandá", en: "Rosewood (Jacarandá)" }, image: "/refs/lateral/jacaranda.webp" },
-            { id: "mogno", label: { pt: "Mogno", en: "Mahogany" }, image: "/refs/lateral/mogno.webp" },
-            { id: "maple", label: { pt: "Maple", en: "Maple" }, image: "/refs/lateral/maple.webp" },
-            { id: "imbuia", label: { pt: "Imbuia", en: "Imbuia" }, image: "/refs/lateral/imbuia.webp" },
           ],
         },
       ],
@@ -268,6 +245,29 @@ export const violaoAco: InstrumentDefinition = {
       ],
     },
     {
+      id: "filetes",
+      title: { pt: "Filetes", en: "Binding" },
+      intro: {
+        pt: "O contorno que emoldura o corpo — proteção e ornamento em cada borda.",
+        en: "The trim that frames the body — protection and ornament along every edge.",
+      },
+      fields: [
+        {
+          kind: "choice",
+          id: "filetes",
+          label: { pt: "Material dos filetes", en: "Binding material" },
+          allowOther: true,
+          options: [
+            { id: "jacaranda", label: { pt: "Jacarandá", en: "Rosewood (Jacarandá)" }, image: "/refs/filetes/jacaranda.webp" },
+            { id: "maple", label: { pt: "Maple", en: "Maple" }, image: "/refs/filetes/maple.webp" },
+            { id: "madre-perola", label: { pt: "Madrepérola", en: "Mother-of-pearl" }, image: "/refs/filetes/madre-perola.webp" },
+            { id: "tortoise", label: { pt: "Tortoise", en: "Tortoise" }, image: "/refs/filetes/tortoise.webp" },
+            { id: "abalone", label: { pt: "Abalone", en: "Abalone" }, image: "/refs/filetes/abalone.webp" },
+          ],
+        },
+      ],
+    },
+    {
       id: "marcacao",
       title: { pt: "Marcação da Escala", en: "Fretboard Markers" },
       intro: {
@@ -330,6 +330,29 @@ export const violaoAco: InstrumentDefinition = {
             { id: "sem-cutaway", label: { pt: "Sem cutaway", en: "No cutaway" }, image: "/refs/cutaway/sem-cutaway.webp" },
             { id: "veneziano", label: { pt: "Veneziano (arredondado)", en: "Venetian (rounded)" }, image: "/refs/cutaway/veneziano.webp" },
             { id: "florentino", label: { pt: "Florentino (agudo)", en: "Florentine (pointed)" }, image: "/refs/cutaway/florentino.webp" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "headstock",
+      title: { pt: "Headstock", en: "Headstock" },
+      intro: {
+        pt: "A assinatura no topo do braço — o desenho que identifica cada Bocatto.",
+        en: "The signature at the top of the neck — the design that identifies every Bocatto.",
+      },
+      fields: [
+        {
+          kind: "choice",
+          id: "headstock",
+          label: { pt: "Desenho do headstock", en: "Headstock design" },
+          allowOther: true,
+          options: [
+            { id: "modelo-1", label: { pt: "Modelo I", en: "Model I" }, image: "/refs/headstock/modelo-1.webp" },
+            { id: "modelo-2", label: { pt: "Modelo II", en: "Model II" }, image: "/refs/headstock/modelo-2.webp" },
+            { id: "modelo-3", label: { pt: "Modelo III", en: "Model III" }, image: "/refs/headstock/modelo-3.webp" },
+            { id: "modelo-4", label: { pt: "Modelo IV", en: "Model IV" }, image: "/refs/headstock/modelo-4.webp" },
+            { id: "modelo-5", label: { pt: "Modelo V", en: "Model V" }, image: "/refs/headstock/modelo-5.webp" },
           ],
         },
       ],
@@ -466,23 +489,10 @@ export const violaoAco: InstrumentDefinition = {
       id: "detalhes",
       title: { pt: "Detalhes Técnicos", en: "Technical Details" },
       intro: {
-        pt: "Os ajustes finais de construção — headstock, tensor e captação.",
-        en: "The final construction details — headstock, truss rod and pickup.",
+        pt: "Os ajustes finais de construção — tensor e captação.",
+        en: "The final construction details — truss rod and pickup.",
       },
       fields: [
-        {
-          kind: "choice",
-          id: "headstock",
-          label: { pt: "Headstock", en: "Headstock" },
-          allowOther: true,
-          options: [
-            { id: "modelo-1", label: { pt: "Modelo I", en: "Model I" } },
-            { id: "modelo-2", label: { pt: "Modelo II", en: "Model II" } },
-            { id: "modelo-3", label: { pt: "Modelo III", en: "Model III" } },
-            { id: "modelo-4", label: { pt: "Modelo IV", en: "Model IV" } },
-            { id: "modelo-5", label: { pt: "Modelo V", en: "Model V" } },
-          ],
-        },
         {
           kind: "choice",
           id: "tensor",

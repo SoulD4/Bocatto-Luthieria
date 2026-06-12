@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { use } from "react";
 import { ButtonLink } from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
+import InstrumentCarousel from "@/components/home/InstrumentCarousel";
 
 export async function generateMetadata({
   params,
@@ -31,20 +32,21 @@ export default function HomePage({
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-6xl px-5 py-20 md:py-28 grid md:grid-cols-[1.2fr_0.8fr] gap-12 items-center">
           <Reveal>
-            <p className="text-gold text-xs uppercase tracking-[0.35em] mb-6">
-              {t("heroKicker")}
-            </p>
-            <h1 className="[font-family:var(--font-display)] text-4xl md:text-6xl leading-[1.08] mb-5">
-              {t("heroTitle")}
-            </h1>
+            {/* Brand first: the logo is the protagonist of the hero. */}
             <Image
               src="/brand/logo-gold.png"
               alt="Bocatto"
               width={974}
               height={280}
               priority
-              className="h-16 md:h-20 w-auto mb-8"
+              className="h-28 md:h-40 w-auto mb-10"
             />
+            <p className="text-gold text-sm uppercase tracking-[0.35em] mb-4">
+              {t("heroKicker")}
+            </p>
+            <h1 className="text-cream/90 text-lg md:text-xl tracking-[0.08em] uppercase mb-6">
+              {t("heroTitle")}
+            </h1>
             <p className="text-muted text-lg max-w-xl mb-10">
               {t("heroSubtitle")}
             </p>
@@ -99,6 +101,55 @@ export default function HomePage({
               </div>
             </Reveal>
           ))}
+        </div>
+      </section>
+
+      {/* ───────────── Real instruments gallery ───────────── */}
+      <section className="border-t border-line/60 py-20 overflow-hidden">
+        <Reveal>
+          <h2 className="[font-family:var(--font-display)] text-3xl md:text-4xl text-center mb-3 px-5">
+            {t("galleryTitle")}
+          </h2>
+          <p className="text-muted text-center max-w-xl mx-auto mb-12 px-5">
+            {t("galleryIntro")}
+          </p>
+        </Reveal>
+        <Reveal delay={0.1}>
+          <InstrumentCarousel alt={t("galleryAlt")} />
+        </Reveal>
+      </section>
+
+      {/* ───────────── Special project (in construction) ───────────── */}
+      <section className="border-y border-line/60 bg-surface/30 overflow-hidden">
+        <div className="mx-auto max-w-6xl px-5 py-20 grid gap-12 md:grid-cols-2 items-center">
+          <Reveal>
+            <div className="relative overflow-hidden rounded-lg border border-line shadow-[0_24px_70px_rgba(0,0,0,0.55)]">
+              <Image
+                src="/brand/projeto-especial.webp"
+                alt={t("specialAlt")}
+                width={1200}
+                height={1600}
+                className="w-full h-auto"
+              />
+            </div>
+          </Reveal>
+          <Reveal delay={0.12}>
+            <p className="text-gold text-xs uppercase tracking-[0.35em] mb-6">
+              {t("specialKicker")}
+            </p>
+            <h2 className="[font-family:var(--font-display)] text-3xl md:text-5xl leading-[1.1] mb-6">
+              {t("specialTitle")}
+            </h2>
+            <p className="text-muted text-lg leading-relaxed mb-4">
+              {t("specialBody1")}
+            </p>
+            <p className="text-cream/80 leading-relaxed mb-10">
+              {t("specialBody2")}
+            </p>
+            <ButtonLink href="/contato" variant="outline">
+              {t("specialCta")}
+            </ButtonLink>
+          </Reveal>
         </div>
       </section>
 

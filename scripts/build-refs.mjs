@@ -1,11 +1,16 @@
 /**
- * Converts the luthier's reference pack (.refs-tmp/Referencias, extracted from
- * Referencias.rar) into web-optimized webp files under public/refs/<field>/<optionId>.webp.
- * File names follow the option ids in src/data/instruments/violao.ts so the UI
- * can reference them directly. Run: node scripts/build-refs.mjs
+ * Converts the luthier's first reference pack (.refs-tmp/Referencias, extracted
+ * from Referencias.rar) into web-optimized webp files under
+ * public/refs/<field>/<optionId>.webp. File names follow the option ids in
+ * src/data/instruments/violao.ts. Run: node scripts/build-refs.mjs
+ *
+ * The second pack (Referencias2.rar → scripts/build-refs2.mjs) supersedes the
+ * "Escudo" photos and adds headstock/filetes/gallery — run it AFTER this one.
+ * "Lateral" no longer exists as a category: back & sides share one choice and
+ * use the "Fundo" photos.
  */
 import sharp from "sharp";
-import { mkdir, rm } from "fs/promises";
+import { mkdir } from "fs/promises";
 import path from "path";
 
 const SRC = path.resolve(".refs-tmp/Referencias");
@@ -37,15 +42,6 @@ const MAP = {
   },
   fundo: {
     dir: "Fundo",
-    files: {
-      "Imbuia.png": "imbuia",
-      "Jacarandá.png": "jacaranda",
-      "Maple.png": "maple",
-      "Mogno.png": "mogno",
-    },
-  },
-  lateral: {
-    dir: "Lateral",
     files: {
       "Imbuia.png": "imbuia",
       "Jacarandá.png": "jacaranda",
@@ -95,18 +91,6 @@ const MAP = {
       "Cruz e Lozango.png": "cruz-losango",
       "Dots.png": "dots-6mm",
       "Floral.png": "floral",
-    },
-  },
-  escudo: {
-    dir: "Escudo",
-    files: {
-      "Gota em Maderira.png": "gota-madeira",
-      "Gota em Preto.png": "gota-preto",
-      "Gota Tortoise.png": "gota-tortoise",
-      "Hummingbird em Madeira.png": "hummingbird-madeira",
-      "Hummingbird Preto.png": "hummingbird-preto",
-      "Hummingbird Tortoise.png": "hummingbird-tortoise",
-      "Sem escudo.png": "sem-escudo",
     },
   },
   cutaway: {
@@ -166,7 +150,7 @@ async function convert(src, dest) {
     .toFile(dest);
 }
 
-await rm(OUT, { recursive: true, force: true });
+// No full wipe: build-refs2.mjs outputs (headstock/filetes/escudo) live here too.
 let count = 0;
 
 for (const [field, { dir, files }] of Object.entries(MAP)) {
