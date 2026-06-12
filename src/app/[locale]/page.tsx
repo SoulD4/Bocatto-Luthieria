@@ -58,19 +58,12 @@ export default function HomePage({
             </div>
           </Reveal>
 
-          <Reveal delay={0.15} className="hidden md:block">
-            <div className="relative">
+          <Reveal delay={0.15}>
+            {/* Real instruments built by the workshop */}
+            <div className="relative mx-auto w-full max-w-sm md:max-w-md">
               <div className="absolute inset-0 -m-12 rounded-full bg-gold/5 blur-3xl" />
-              {/* Official Bocatto OM technical blueprint */}
-              <div className="relative overflow-hidden rounded-lg border border-line shadow-[0_24px_70px_rgba(0,0,0,0.55)]">
-                <Image
-                  src="/refs/modelos/om.webp"
-                  alt="Blueprint técnico do Bocatto OM"
-                  width={800}
-                  height={600}
-                  priority
-                  className="w-full h-auto"
-                />
+              <div className="relative">
+                <InstrumentCarousel alt={t("galleryAlt")} />
               </div>
             </div>
           </Reveal>
@@ -102,21 +95,6 @@ export default function HomePage({
             </Reveal>
           ))}
         </div>
-      </section>
-
-      {/* ───────────── Real instruments gallery ───────────── */}
-      <section className="border-t border-line/60 py-20 overflow-hidden">
-        <Reveal>
-          <h2 className="[font-family:var(--font-display)] text-3xl md:text-4xl text-center mb-3 px-5">
-            {t("galleryTitle")}
-          </h2>
-          <p className="text-muted text-center max-w-xl mx-auto mb-12 px-5">
-            {t("galleryIntro")}
-          </p>
-        </Reveal>
-        <Reveal delay={0.1}>
-          <InstrumentCarousel alt={t("galleryAlt")} />
-        </Reveal>
       </section>
 
       {/* ───────────── Special project (in construction) ───────────── */}
