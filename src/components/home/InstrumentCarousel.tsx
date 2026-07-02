@@ -152,7 +152,8 @@ export default function InstrumentCarousel({ alt }: { alt: string }) {
               sizes="(max-width: 768px) 86vw, 420px"
               className="object-cover"
               priority={i === 0}
-              loading={i === 0 ? undefined : "lazy"}
+              // The second slide peeks into view — eager avoids an LCP warning.
+              loading={i <= 1 ? "eager" : "lazy"}
             />
           </figure>
         ))}

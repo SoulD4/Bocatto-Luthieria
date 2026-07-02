@@ -3,22 +3,24 @@
  * gradient backgrounds band badly under aggressive WebP, so these use a larger
  * size, quality 92, max effort and smart subsampling — plus a faint grain that
  * dithers the gradient and keeps the encoder from quantizing it into steps.
- * Run (after extracting Referencias2.rar to .refs2-tmp): node scripts/build-gallery.mjs
+ * Source: carroselfinal.zip (owner-prepared art with embedded captions),
+ * extracted to .carrossel-tmp. Run: node scripts/build-gallery.mjs
  */
 import sharp from "sharp";
 import { mkdir } from "fs/promises";
 import path from "path";
 
-const SRC = path.resolve(".refs2-tmp/Referencias2/Carrosel");
+const SRC = path.resolve(".carrossel-tmp");
 const OUT = path.resolve("public/gallery");
 const WIDTH = 1200;
 
+// Display order: OM (flagship) → Dreadnought → 015 → Concert → Viola Caipira.
 const FILES = [
-  ["1000139106.webp", "instrumento-1.webp"],
-  ["1000139107.webp", "instrumento-2.webp"],
-  ["1000139108.webp", "instrumento-3.webp"],
-  ["1000139112.webp", "instrumento-4.webp"],
-  ["1000139116.webp", "instrumento-5.webp"],
+  ["b4b6b1a0-764c-11f1-a3e0-c7b4909cf957.webp", "instrumento-1.webp"], // OM
+  ["3f0c5c10-764d-11f1-a3e0-c7b4909cf957.png", "instrumento-2.webp"], // Dreadnought
+  ["3eb6c200-764d-11f1-a3e0-c7b4909cf957.png", "instrumento-3.webp"], // 015
+  ["b697f4c0-764c-11f1-a3e0-c7b4909cf957.webp", "instrumento-4.webp"], // Concert
+  ["b8452f90-764c-11f1-a3e0-c7b4909cf957.webp", "instrumento-5.webp"], // Viola Caipira
 ];
 
 await mkdir(OUT, { recursive: true });

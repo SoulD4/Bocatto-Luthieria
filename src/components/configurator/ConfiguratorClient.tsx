@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "motion/react";
 import type { InstrumentDefinition } from "@/data/instruments/types";
+import { families, type InstrumentFamily } from "@/data/instruments/families";
 import type { Locale } from "@/i18n/routing";
 import { useConfigurator } from "@/store/configurator";
 import { validateStep } from "@/lib/summary";
 import { Button } from "@/components/ui/Button";
 import ProgressBar from "./ProgressBar";
+import SelectionStep, { ComingSoon } from "./SelectionStep";
 import ModelStep from "./ModelStep";
 import StepView from "./StepView";
 import ReferencesStep from "./ReferencesStep";
@@ -16,27 +18,35 @@ import Review, { type OrderResult } from "./Review";
 import SendStep from "./SendStep";
 import Success from "./Success";
 
-type Phase = "welcome" | "flow" | "success";
-
 /**
- * Seven-stage creation flow: Modelo → (field steps) → Referências → Revisão →
- * Envio. Field steps come from `definition.steps`, so the same flow serves any
- * future instrument family (nylon, guitar, bass, viola) unchanged.
+ * Creation flow: Welcome → Instrument family → (variant, e.g. steel/nylon) →
+ * field steps → References → Review → Send. Families and variants come from
+ * `families`; unavailable branches show an elegant coming-soon screen. Field
+ * steps come from the chosen InstrumentDefinition, so new instruments plug in
+ * by data alone (see src/data/instruments/families.ts).
  */
-export default function ConfiguratorClient({
-  definition,
-}: {
-  definition: InstrumentDefinition;
-}) {
+type Phase = "welcome" | "family" | "variant" | "coming-soon" | "flow" | "success";
+
+export default function ConfiguratorClient() {
   const t = useTranslations("config");
   const lang = useLocale() as Locale;
   const modelId = useConfigurator((s) => s.modelId);
   const values = useConfigurator((s) => s.values);
   const reset = useConfigurator((s) => s.reset);
 
-  const fieldSteps = definition.steps;
+  const [phase, setPhase] = useState<Phase>("welcome");
+  const [family, setFamily] = useState<InstrumentFamily | null>(null);
+  const [definition, setDefinition] = useState<InstrumentDefinition | null>(null);
+  const lastDefinitionId = useRef<string | null>(null);
+  const [comingSoon, setComingSoon] = useState<{
+    name: string;
+    note: string;
+    backTo: "family" | "variant";
+  } | null>(null);
+
+  const fieldSteps = useMemo(() => definition?.steps ?? [], [definition]);
   const N = fieldSteps.length;
-  // Indices: 0=Modelo, 1..N=field steps, N+1=Referências, N+2=Revisão, N+3=Envio
+  // Flow indices: 0=Modelo, 1..N=field steps, N+1=Referências, N+2=Revisão, N+3=Envio
   const REFERENCES = N + 1;
   const REVIEW = N + 2;
   const SEND = N + 3;
@@ -52,7 +62,6 @@ export default function ConfiguratorClient({
     [t, fieldSteps, lang],
   );
 
-  const [phase, setPhase] = useState<Phase>("welcome");
   const [step, setStep] = useState(0);
   const [maxVisited, setMaxVisited] = useState(0);
   const [errors, setErrors] = useState<Record<string, "required" | "otherText">>({});
@@ -71,6 +80,47 @@ export default function ConfiguratorClient({
 
   function scrollTop() {
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function chooseFamily(id: string) {
+    const fam = families.find((f) => f.id === id);
+    if (!fam) return;
+    setFamily(fam);
+    if (!fam.variants?.some((v) => v.definition)) {
+      setComingSoon({
+        name: fam.name[lang],
+        note: (fam.comingSoonNote ?? { pt: "", en: "" })[lang],
+        backTo: "family",
+      });
+      setPhase("coming-soon");
+    } else {
+      setPhase("variant");
+    }
+    scrollTop();
+  }
+
+  function chooseVariant(id: string) {
+    const variant = family?.variants?.find((v) => v.id === id);
+    if (!variant) return;
+    if (!variant.definition) {
+      setComingSoon({
+        name: variant.name[lang],
+        note: (variant.comingSoonNote ?? { pt: "", en: "" })[lang],
+        backTo: "variant",
+      });
+      setPhase("coming-soon");
+    } else {
+      // Fresh sheet when switching to a different instrument definition.
+      if (lastDefinitionId.current !== variant.definition.id) {
+        reset();
+        setStep(0);
+        setMaxVisited(0);
+        lastDefinitionId.current = variant.definition.id;
+      }
+      setDefinition(variant.definition);
+      setPhase("flow");
+    }
+    scrollTop();
   }
 
   function validateCurrent(): boolean {
@@ -103,7 +153,7 @@ export default function ConfiguratorClient({
     setErrors({});
     setModelError(undefined);
     if (step === 0) {
-      setPhase("welcome");
+      setPhase(family?.variants ? "variant" : "family");
     } else {
       setStep((s) => s - 1);
     }
@@ -124,6 +174,9 @@ export default function ConfiguratorClient({
     setResult(null);
     setStep(0);
     setMaxVisited(0);
+    setFamily(null);
+    setDefinition(null);
+    lastDefinitionId.current = null;
     setPhase("welcome");
     window.scrollTo({ top: 0 });
   }
@@ -150,18 +203,65 @@ export default function ConfiguratorClient({
             <p className="text-cream/70 text-sm max-w-md mx-auto mb-12">
               {t("welcomeNote")}
             </p>
-            <Button
-              onClick={() => {
-                setPhase("flow");
-                setMaxVisited((m) => Math.max(m, 0));
-              }}
-            >
-              {t("welcomeStart")}
-            </Button>
+            <Button onClick={() => setPhase("family")}>{t("welcomeStart")}</Button>
           </motion.div>
         )}
 
-        {phase === "flow" && (
+        {phase === "family" && (
+          <motion.div key="family" exit={{ opacity: 0 }}>
+            <SelectionStep
+              title={t("familyTitle")}
+              intro={t("familyIntro")}
+              options={families.map((f) => ({
+                id: f.id,
+                title: f.name[lang],
+                description: f.description[lang],
+                available: Boolean(f.variants?.some((v) => v.definition)),
+              }))}
+              onSelect={chooseFamily}
+            />
+            <div className="mt-12 pt-6 border-t border-line/50">
+              <Button variant="ghost" onClick={() => setPhase("welcome")}>
+                ← {t("back")}
+              </Button>
+            </div>
+          </motion.div>
+        )}
+
+        {phase === "variant" && family?.variants && (
+          <motion.div key="variant" exit={{ opacity: 0 }}>
+            <SelectionStep
+              title={t("variantTitle", { family: family.name[lang] })}
+              intro={t("variantIntro")}
+              options={family.variants.map((v) => ({
+                id: v.id,
+                title: v.name[lang],
+                description: v.description[lang],
+                available: Boolean(v.definition),
+              }))}
+              onSelect={chooseVariant}
+            />
+            <div className="mt-12 pt-6 border-t border-line/50">
+              <Button variant="ghost" onClick={() => setPhase("family")}>
+                ← {t("back")}
+              </Button>
+            </div>
+          </motion.div>
+        )}
+
+        {phase === "coming-soon" && comingSoon && (
+          <ComingSoon
+            key="coming-soon"
+            name={comingSoon.name}
+            note={comingSoon.note}
+            onBack={() => {
+              setPhase(comingSoon.backTo);
+              setComingSoon(null);
+            }}
+          />
+        )}
+
+        {phase === "flow" && definition && (
           <motion.div
             key="flow"
             initial={{ opacity: 0 }}

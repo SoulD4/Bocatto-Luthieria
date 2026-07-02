@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
 import ConfiguratorClient from "@/components/configurator/ConfiguratorClient";
-import { defaultInstrument } from "@/data/instruments/violao";
 
 export async function generateMetadata({
   params,
@@ -24,7 +23,7 @@ export default function ConfiguratorPage({
 
   return (
     <div className="pt-16 flex-1 flex flex-col">
-      <ConfiguratorClient definition={defaultInstrument} />
+      <ConfiguratorClient />
     </div>
   );
 }
